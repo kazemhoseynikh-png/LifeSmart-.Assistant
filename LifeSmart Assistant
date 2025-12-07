@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSmart Assistant - دستیار هوشمند زندگی</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <!-- محتوای اصلی -->
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="main-header">
+            <div class="logo-container">
+                <div class="logo-icon">🤝</div>
+                <div class="logo-text">
+                    <h1>LifeSmart Assistant</h1>
+                    <p>دستیار هوشمند زندگی شما</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- جستجو -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" 
+                       placeholder="مشکلت رو اینجا بنویس (مثال: سردرد دارم، پول کم آورده‌ام...)">
+                <button class="search-btn" onclick="searchProblem()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- دکمه‌های اصلی -->
+        <div class="main-buttons">
+            <button class="main-btn health" onclick="showCategory('health')">
+                <i class="fas fa-heartbeat"></i>
+                <span>سلامت و پزشکی</span>
+            </button>
+            
+            <button class="main-btn finance" onclick="showCategory('finance')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>مالی و اقتصادی</span>
+            </button>
+            
+            <button class="main-btn family" onclick="showCategory('family')">
+                <i class="fas fa-home"></i>
+                <span>خانواده و روابط</span>
+            </button>
+            
+            <button class="main-btn education" onclick="showCategory('education')">
+                <i class="fas fa-graduation-cap"></i>
+                <span>آموزش و مهارت</span>
+            </button>
+        </div>
+
+        <!-- دستیار صوتی -->
+        <div class="voice-assistant">
+            <h3><i class="fas fa-microphone"></i> دستیار صوتی</h3>
+            <p>مشکلت رو بگو، ما راه‌حلش رو پیدا می‌کنیم</p>
+            
+            <button class="voice-btn" id="voiceButton" onclick="toggleVoiceAssistant()">
+                <i class="fas fa-microphone"></i>
+            </button>
+            
+            <div id="voiceStatus">روی دکمه کلیک کن و صحبت کن</div>
+            <div id="voiceOutput"></div>
+        </div>
+
+        <!-- نتایج -->
+        <div class="results-container" id="resultsContainer">
+            <h3><i class="fas fa-lightbulb"></i> راه‌حل‌های پیشنهادی</h3>
+            <div id="solutionsList"></div>
+        </div>
+
+        <!-- فوتر -->
+        <footer class="main-footer">
+            <p>© 2024 LifeSmart Assistant - نسخه ۱.۰.۰</p>
+        </footer>
+
+        <!-- دکمه اورژانس -->
+        <button class="emergency-button" onclick="showEmergency()">
+            <i class="fas fa-ambulance"></i>
+            <span>کمک فوری اورژانسی 🚨</span>
+        </button>
+    </div>
+
+    <script src="knowledge-base.js"></script>
+    <script src="app.js"></script>
+    <script src="voice-service.js"></script>
+</body>
+</html>
+
+:root {
+    --primary-green: #4CAF50;
+    --primary-blue: #2196F3;
+    --primary-white: #FFFFFF;
+    --light-green: #C8E6C9;
+    --light-blue: #BBDEFB;
+    --emergency-red: #F44336;
+    --health-pink: #E91E63;
+    --finance-gold: #FF9800;
+    --education-indigo: #3F51B5;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+    min-height: 100vh;
+    color: #333;
+}
+
+.app-container {
+    max-width: 100%;
+    min-height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 0;
+    overflow-x: hidden;
+}
+
+.main-header {
+    background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
+    color: white;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.logo-icon {
+    font-size: 48px;
+    background: white;
+    color: var(--primary-green);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.logo-text h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+
+.logo-text p {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.emergency-button {
+    position: fixed;
+    bottom: 100px;
+    left: 20px;
+    right: 20px;
+    background: var(--emergency-red);
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 15px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.emergency-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(244, 67, 54, 0.6);
+}
+
+.main-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.main-btn {
+    background: white;
+    border: 2px solid var(--light-blue);
+    border-radius: 12px;
+    padding: 25px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.main-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.main-btn i {
+    font-size: 2.5rem;
+}
+
+.main-btn.health { border-color: var(--health-pink); color: var(--health-pink); }
+.main-btn.finance { border-color: var(--finance-gold); color: var(--finance-gold); }
+.main-btn.family { border-color: var(--primary-green); color: var(--primary-green); }
+.main-btn.education { border-color: var(--primary-blue); color: var(--primary-blue); }
+
+.voice-assistant {
+    background: linear-gradient(135deg, var(--light-blue), var(--light-green));
+    margin: 20px;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(33, 150, 243, 0.2);
+}
+
+.voice-btn {
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 2rem;
+    cursor: pointer;
+    margin: 15px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+}
+
+.voice-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(33, 150, 243, 0.4);
+}
+
+.voice-btn.listening {
+    animation: pulse 1.5s infinite;
+    background: var(--emergency-red);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.search-container {
+    padding: 20px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid var(--light-blue);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.search-btn {
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.results-container {
+    padding: 20px;
+    display: none;
+}
+
+.solution-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-right: 5px solid var(--primary-green);
+}
+
+.solution-card.emergency {
+    border-right-color: var(--emergency-red);
+    background: #FFF5F5;
+}
+
+.step {
+    margin: 10px 0;
+    padding-right: 15px;
+    position: relative;
+}
+
+.step:before {
+    content: "•";
+    color: var(--primary-blue);
+    font-size: 1.5rem;
+    position: absolute;
+    right: 0;
+}
+
+.main-footer {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 0.9rem;
+    border-top: 1px solid #eee;
+    margin-top: 40px;
+}
+
+@media (max-width: 480px) {
+    .main-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .logo-text h1 {
+        font-size: 1.5rem;
+    }
+}
+// LifeSmart Assistant - منطق اصلی برنامه
+
+// جستجوی مشکل
+function searchProblem() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) {
+        alert('لطفاً مشکل خود را بنویسید');
+        return;
+    }
+    
+    showLoading('در حال جستجوی راه‌حل...');
+    
+    setTimeout(() => {
+        findSolutions(query);
+    }, 800);
+}
+
+function findSolutions(query) {
+    let foundSolutions = [];
+    const lowerQuery = query.toLowerCase();
+    
+    // جستجو در پایگاه دانش
+    for (const category in knowledgeBase) {
+        for (const problem in knowledgeBase[category]) {
+            if (problem.includes(lowerQuery) || lowerQuery.includes(problem)) {
+                foundSolutions.push({
+                    ...knowledgeBase[category][problem],
+                    category: category
+                });
+            }
+        }
+    }
+    
+    // اگر چیزی پیدا نشد
+    if (foundSolutions.length === 0) {
+        foundSolutions = getGenericSolutions(query);
+    }
+    
+    displaySolutions(foundSolutions, query);
+}
+
+function getGenericSolutions(query) {
+    if (query.includes('سرد') || query.includes('درد')) {
+        return [knowledgeBase.health['سردرد']];
+    } else if (query.includes('پول') || query.includes('خرج')) {
+        return [knowledgeBase.finance['پول کم']];
+    }
+    
+    return [{
+        title: "راهنمایی عمومی",
+        emergency: false,
+        steps: [
+            "مشکل خود را دقیق‌تر توضیح دهید",
+            "می‌توانید از دسته‌بندی‌های بالا استفاده کنید",
+            "یا با دستیار صوتی صحبت کنید"
+        ]
+    }];
+}
+
+function displaySolutions(solutions, originalQuery) {
+    const container = document.getElementById('solutionsList');
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    container.innerHTML = '';
+    
+    if (solutions.length === 0) {
+        container.innerHTML = `
+            <div class="solution-card">
+                <h4>راه‌حلی یافت نشد</h4>
+                <p>برای مشکل "${originalQuery}" راه‌حلی در پایگاه ما نیست.</p>
+                <p>می‌توانید:</p>
+                <div class="step">با اورژانس ۱۱۵ تماس بگیرید</div>
+                <div class="step">به پزشک مراجعه کنید</div>
+                <div class="step">سوال خود را در بخش مشاوره بپرسید</div>
+            </div>
+        `;
+    } else {
+        solutions.forEach((solution, index) => {
+            const card = document.createElement('div');
+            card.className = `solution-card ${solution.emergency ? 'emergency' : ''}`;
+            
+            let stepsHTML = '';
+            solution.steps.forEach((step, i) => {
+                stepsHTML += `<div class="step">${i+1}. ${step}</div>`;
+            });
+            
+            card.innerHTML = `
+                <h4>${solution.title}</h4>
+                ${solution.warning ? `<div style="background: #FFF3CD; padding: 10px; border-radius: 5px; margin: 10px 0; border-right: 3px solid #FFC107;">
+                    ⚠️ ${solution.warning}
+                </div>` : ''}
+                <div style="margin-top: 15px;">
+                    ${stepsHTML}
+                </div>
+            `;
+            
+            container.appendChild(card);
+        });
+    }
+    
+    resultsContainer.style.display = 'block';
+    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showCategory(category) {
+    const categories = {
+        health: 'سلامت و پزشکی',
+        finance: 'مالی و اقتصادی',
+        family: 'خانواده و روابط',
+        education: 'آموزش و مهارت'
+    };
+    
+    document.getElementById('searchInput').value = categories[category];
+    searchProblem();
+}
+
+function showEmergency() {
+    const solutions = [knowledgeBase.emergency['سکته قلبی']];
+    displaySolutions(solutions, 'اورژانس');
+    
+    setTimeout(() => {
+        const emergencyNumbers = document.createElement('div');
+        emergencyNumbers.className = 'solution-card emergency';
+        emergencyNumbers.innerHTML = `
+            <h4>📞 شماره‌های اضطراری</h4>
+            <div class="step" style="color: var(--emergency-red); font-weight: bold;">
+                ۱۱۵ - اورژانس پزشکی
+            </div>
+            <div class="step" style="color: var(--emergency-red); font-weight: bold;">
+                ۱۲۵ - آتش‌نشانی
+            </div>
+            <div class="step" style="color: var(--emergency-red); font-weight: bold;">
+                ۱۱۰ - پلیس
+            </div>
+            <div class="step" style="color: var(--emergency-red); font-weight: bold;">
+                ۱۲۳ - هلال احمر
+            </div>
+            <div style="margin-top: 15px; padding: 10px; background: #FFEBEE; border-radius: 5px;">
+                <strong>توصیه:</strong> این شماره‌ها را در گوشی خود ذخیره کنید
+            </div>
+        `;
+        
+        document.getElementById('solutionsList').prepend(emergencyNumbers);
+    }, 100);
+}
+
+function showLoading(message) {
+    const container = document.getElementById('solutionsList');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+            <div style="border: 3px solid #f3f3f3; border-top: 3px solid var(--primary-blue); 
+                  border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+            <p>${message}</p>
+        </div>
+        <style>
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        </style>
+    `;
+    
+    document.getElementById('resultsContainer').style.display = 'block';
+}
+// پایگاه دانش LifeSmart Assistant
+const knowledgeBase = {
+    health: {
+        "سردرد": {
+            title: "سردرد - راه‌حل‌های فوری",
+            emergency: false,
+            steps: [
+                "۲ لیوان آب بنوشید (کم‌آبی عامل شایع سردرد است)",
+                "در یک اتاق تاریک و ساکت استراحت کنید",
+                "شقیقه‌های خود را به آرامی ماساژ دهید",
+                "از کمپرس سرد روی پیشانی استفاده کنید",
+                "اگر ادامه داشت: استامینوفن یا ایبوپروفن مصرف کنید"
+            ],
+            warning: "اگر سردرد با تاری دید، استفراغ یا تب همراه بود، فوراً به پزشک مراجعه کنید"
+        },
+        "درد معده": {
+            title: "درد معده و دل‌پیچه",
+            emergency: false,
+            steps: [
+                "چای نعناع یا بابونه بنوشید",
+                "از غذاهای سنگین پرهیز کنید",
+                "حوله گرم روی شکم قرار دهید",
+                "به آرامی شکم خود را ماساژ دهید"
+            ]
+        },
+        "تب": {
+            title: "تب و گرمای بدن",
+            emergency: false,
+            steps: [
+                "استامینوفن یا ایبوپروفن مصرف کنید",
+                "مایعات فراوان بنوشید",
+                "لباس سبک بپوشید",
+                "پاشویه با آب ولرم انجام دهید"
+            ],
+            warning: "اگر تب بالای ۳۹ درجه یا بیشتر از ۳ روز ادامه داشت، به پزشک مراجعه کنید"
+        }
+    },
+    
+    finance: {
+        "پول کم": {
+            title: "مدیریت مالی با درآمد کم",
+            emergency: false,
+            steps: [
+                "لیست تمام هزینه‌های ماهانه را بنویسید",
+                "هزینه‌های غیرضروری (مثل اشتراک‌های اضافی) را حذف کنید",
+                "بودجه‌بندی کنید: ۵۰٪ نیازها، ۳۰٪ خواسته‌ها، ۲۰٪ پس‌انداز",
+                "برای خریدهای بزرگ حداقل ۲۴ ساعت صبر کنید",
+                "مهارت جدیدی یاد بگیرید که درآمد اضافه ایجاد کند"
+            ]
+        },
+        "بدهی": {
+            title: "مدیریت بدهی و قرض",
+            emergency: false,
+            steps: [
+                "تمام بدهی‌های خود را لیست کنید",
+                "کوچک‌ترین بدهی را اول پرداخت کنید",
+                "با طلبکاران برای بازپرداخت مذاکره کنید",
+                "از وام جدید برای پرداخت وام قدیمی خودداری کنید"
+            ]
+        }
+    },
+    
+    emergency: {
+        "سکته قلبی": {
+            title: "علائم سکته قلبی - اقدام فوری",
+            emergency: true,
+            steps: [
+                "با شماره ۱۱۵ تماس فوری بگیرید",
+                "بیمار را در حالت نیمه‌نشسته قرار دهید",
+                "لباس‌های تنگ را باز یا درآورید",
+                "اگر قرص زیرزبانی (نیتروگلیسیرین) دارد، استفاده کنید",
+                "آسپرین ۳۲۵ میلی‌گرم بجود (اگر حساسیت ندارد)",
+                "تا رسیدن اورژانس کنار بیمار بمانید"
+            ],
+            warning: "هر دقیقه در سکته قلبی حیاتی است - معطل نکنید!"
+        },
+        "خونریزی شدید": {
+            title: "کنترل خونریزی شدید",
+            emergency: true,
+            steps: [
+                "با ۱۱۵ تماس بگیرید",
+                "روی زخم فشار مستقیم وارد کنید",
+                "اگر ممکن است، محل زخم را بالا نگه دارید",
+                "از تورنیکه فقط در موارد قطع عضو استفاده کنید",
+                "آرامش خود را حفظ کنید"
+            ]
+        }
+    }
+};// دستیار صوتی LifeSmart Assistant
+let isListening = false;
+
+function toggleVoiceAssistant() {
+    const voiceBtn = document.getElementById('voiceButton');
+    const voiceStatus = document.getElementById('voiceStatus');
+    const voiceOutput = document.getElementById('voiceOutput');
+    
+    if (!isListening) {
+        startVoiceRecognition();
+        voiceBtn.classList.add('listening');
+        voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+        voiceStatus.textContent = 'در حال گوش دادن... صحبت کنید';
+        voiceOutput.style.display = 'block';
+        voiceOutput.innerHTML = '<p style="color: #666;">در حال پردازش صدا...</p>';
+        isListening = true;
+    } else {
+        stopVoiceRecognition();
+        voiceBtn.classList.remove('listening');
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceStatus.textContent = 'روی دکمه کلیک کن و صحبت کن';
+        isListening = false;
+    }
+}
+
+function startVoiceRecognition() {
+    // شبیه‌سازی تشخیص صدای فارسی
+    // در نسخه واقعی از Web Speech API استفاده می‌شود
+    setTimeout(() => {
+        const simulatedText = "سردرد دارم چه کار کنم";
+        document.getElementById('voiceOutput').innerHTML = `
+            <p><strong>تشخیص دادم:</strong> "${simulatedText}"</p>
+            <button onclick="processVoiceCommand('${simulatedText}')" 
+                    style="background: var(--primary-green); color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-top: 10px;">
+                پیدا کردن راه‌حل
+            </button>
+        `;
+    }, 2000);
+}
+
+function stopVoiceRecognition() {
+    document.getElementById('voiceOutput').innerHTML = 
+        '<p>دستیار صوتی متوقف شد. برای شروع مجدد کلیک کنید.</p>';
+}
+
+function processVoiceCommand(command) {
+    document.getElementById('searchInput').value = command;
+    searchProblem();
+}
+{
+  "name": "LifeSmart Assistant",
+  "short_name": "LifeSmart",
+  "description": "دستیار هوشمند زندگی برای مشکلات روزمره",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2196F3",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
